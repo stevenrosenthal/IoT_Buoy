@@ -100,10 +100,10 @@ void Buoy::postToServer(String serverPath, String postBody){
     }
 
    Serial.println("Posting to server: " + serverName);
-   Serial.println("Body: " + postBody);
+   Serial.println("body: " + postBody);
    
    connection.begin(serverName);  //Specify destination for HTTP request
-   connection.addHeader("Content-Type", "text/plain");
+   connection.addHeader("Content-Type", "application/json");
 
    int httpResponseCode = connection.POST(postBody);   //Send the actual POST request
   
