@@ -64,7 +64,7 @@ void Buoy::connectToServer(void){
   
     //Attemppt to connect
     Serial.print("Attempting to connect to ");
-    Serial.print("");
+    Serial.print(server.ssid);
     Serial.println("...");
     
     WiFi.begin(server.ssid.c_str(), server.password.c_str());

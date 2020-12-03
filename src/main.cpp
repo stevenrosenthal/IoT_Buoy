@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "Buoy_Support/Buoy_WiFi.h"
 
-Buoy myBuoy("NerdsWhoAlsoHaveFun","skatergators","5000","192.168.1.64");
+Buoy myBuoy("Pascal's Coffeehouse Guest","","80","10.255.210.88");
 
 typedef struct {
   int16_t id;
