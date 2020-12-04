@@ -1,7 +1,11 @@
 #include "Buoy_WiFi.h"
+
+//BLE (BAKER BLOKC)
+myTag::myTag(){}
+
+
 //WiFi
 myServer::myServer(){}
-
 myServer::myServer(String ssid, String password, String serverPort, String serverIP){
     this->ssid = ssid;
     this->password = password;
@@ -19,7 +23,38 @@ Buoy::Buoy(String ssid, String password, String serverPort, String serverIP){
     this->isConnected = false;
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //Buoy Functions
+//Tag (BAKER BLOCK )
+void Buoy::createPostData(void){
+  sprintf("{tag_id: %d, accel: [%f,%f,%f]}, temperature: %f, preassure: %f, location: [%f, %f]", \
+          msgBuffer.c_str(), curTag.tagData.id,
+          curTag.tagData.x,
+          curTag.tagData.y,
+          curTag.tagData.z,
+          curTag.tagData.temperature,
+          curTag.tagData.preassure,
+          curTag.tagData.lng,
+          curTag.tagData.lat
+        );
+}
+void Buoy::connectToTag(int tagID){
+  /*POPULATE ME*/
+}
+void Buoy::disconnectFromTag(int tagID){
+/*POPULATE ME*/
+}
+void Buoy::getFromTag(){
+/*POPULATE ME*/
+}
+void Buoy::postToTag(){
+/*POPULATE ME*/
+}
+
+
+//Server
 void Buoy::connectToServer(void){
     //Turn on serial monitor
   Serial.begin(115200);
@@ -124,3 +159,4 @@ void Buoy::postToServer(String serverPath, String postBody){
     Serial.println("Could not post... WiFi disconnected");   
   }
 }
+
