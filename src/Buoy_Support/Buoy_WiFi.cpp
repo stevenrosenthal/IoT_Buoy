@@ -1,7 +1,14 @@
 #include "Buoy_WiFi.h"
 
+//CONSTRCUTORS
+
 //BLE (BAKER BLOKC)
 myTag::myTag(){}
+myTag::myTag(String serviceID, String characteristic_UUID){
+  this->serviceID = serviceID;
+  this->characteristic_UUID = characteristic_UUID;
+  this->isConnected = false;
+}
 
 
 //WiFi
@@ -11,51 +18,55 @@ myServer::myServer(String ssid, String password, String serverPort, String serve
     this->password = password;
     this->port = serverPort;
     this->IP = serverIP;
+    this->isConnected = false;
 }
 
 //Buoy
-Buoy::Buoy(String ssid, String password, String serverPort, String serverIP){
-    this->server.ssid = ssid;
-    this->server.password = password;
-    this->server.port = serverPort;
-    this->server.IP = serverIP;
-
-    this->isConnected = false;
+myBuoy::myBuoy(myServer* server, myTag* tag){
+  //Server
+    this->server = server;
+  
+  //Tag
+    this->tag = tag;
 }
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//Buoy Functions
+//FUNCTIONS
+
 //Tag (BAKER BLOCK )
-void Buoy::createPostData(void){
-  sprintf("{tag_id: %d, accel: [%f,%f,%f]}, temperature: %f, preassure: %f, location: [%f, %f]", \
-          msgBuffer.c_str(), curTag.tagData.id,
-          curTag.tagData.x,
-          curTag.tagData.y,
-          curTag.tagData.z,
-          curTag.tagData.temperature,
-          curTag.tagData.preassure,
-          curTag.tagData.lng,
-          curTag.tagData.lat
+String myTag::makeDataPacket(void){
+  char buffer[200];
+  sprintf(buffer,"{\"tag_id\": %d, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"location\": [%f, %f]}",
+          tagData.id,
+          tagData.x,
+          tagData.y,
+          tagData.z,
+          tagData.temperature,
+          tagData.pressure,
+          tagData.lng,
+          tagData.lat
         );
+  String msgBuffer(buffer);
+  return msgBuffer;
 }
-void Buoy::connectToTag(int tagID){
+void myTag::connect(int tagID){
   /*POPULATE ME*/
 }
-void Buoy::disconnectFromTag(int tagID){
+void myTag::disconnect(int tagID){
 /*POPULATE ME*/
 }
-void Buoy::getFromTag(){
+void myTag::get(){
 /*POPULATE ME*/
 }
-void Buoy::postToTag(){
+void myTag::post(){
 /*POPULATE ME*/
 }
 
 
 //Server
-void Buoy::connectToServer(void){
+void myServer::connect(void){
     //Turn on serial monitor
   Serial.begin(115200);
   delay(100);
@@ -82,7 +93,7 @@ void Buoy::connectToServer(void){
             Serial.print(" (");
             Serial.print(WiFi.RSSI(i));
             Serial.print(")\n");
-            if(server.ssid.equals(WiFi.SSID(i))){
+            if(ssid.equals(WiFi.SSID(i))){
               netFound = true;  
             }
     }
@@ -99,10 +110,10 @@ void Buoy::connectToServer(void){
   
     //Attemppt to connect
     Serial.print("Attempting to connect to ");
-    Serial.print(server.ssid);
+    Serial.print(ssid);
     Serial.println("...");
     
-    WiFi.begin(server.ssid.c_str(), server.password.c_str());
+    WiFi.begin(ssid.c_str(), password.c_str());
 
    //Try to connect
    int attemptI = 1;
@@ -115,23 +126,26 @@ void Buoy::connectToServer(void){
     
     Serial.println("Connected!");
     Serial.print("IP Address: ");
-    this->IP = WiFi.localIP();
+    buoyIP = WiFi.localIP();
     Serial.println(WiFi.localIP());
   }
   else{
-    Serial.print(server.ssid);
+    Serial.print(ssid);
     Serial.println(" was not found... Rescanning...");
     goto SCAN_NETS;
   }
+
+  isConnected = true;
 }
-void Buoy::postToServer(String serverPath, String postBody){
+void myServer::post(String serverPath, String postBody){
   if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
+    HTTPClient connection;
     String serverName;
     if(postBody.charAt(0) == '/'){
-      serverName = "http://" + server.IP + ":" + server.port + serverPath + "/";
+      serverName = "http://" + IP + ":" + port + serverPath + "/";
     }
     else{
-      serverName = "http://" + server.IP + ":" + server.port + serverPath;
+      serverName = "http://" + IP + ":" + port + serverPath;
     }
 
    Serial.println("Posting to server: " + serverName);

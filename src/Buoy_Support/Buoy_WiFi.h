@@ -15,7 +15,7 @@ typedef struct tagData{
   float y;
   float z;
   float temperature;
-  float preassure;
+  float pressure;
   double lat;
   double lng;
 } tagData_t;
@@ -23,11 +23,18 @@ typedef struct tagData{
 class myTag{
     public:
         myTag();
+        myTag(String serviceID, String characteristic_UUID);
         String serviceID;
         String characteristic_UUID;
-        myTag(String ssid, String password, String serverPort, String serverIP);
 
         tagData_t tagData;
+        bool isConnected;
+
+        String makeDataPacket(void);
+        void connect(int tagID);
+        void disconnect(int tagID);
+        void get();
+        void post();
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,38 +50,26 @@ class myServer{
 
         String port;
         String IP;
+        bool isConnected;
+
+        IPAddress buoyIP;       //Buoy's IP Address
+
+        //WIFI
+        void connect(void);
+        void post(String serverPath, String postBody); // serverPath format = /directories
+        String get(String serverPath);
 };
 //Buoy Class
 /*
 You may add to this/edit. The add to the constrcutor for a buoy if you wish and modify functions.
 you may also add private support functions too. Keep it clean 
 */
-class Buoy{
+class myBuoy{
 public:
     //Constructors
-    Buoy(String ssid, String password, String serverPort, String serverIP);
+    myBuoy(myServer* server,myTag* tag);
 
     //Vars
-    myServer server;
-    HTTPClient connection;
-    IPAddress IP;
-
-    myTag curTag;
-    String msgBuffer;
-    bool isConnected;
-
-    //Fxs
-    //TAG (BLE)
-    void connectToTag(int tagID);
-    void disconnectFromTag(int tagID);
-    void getFromTag();
-    void postToTag();
-
-    //WIFI
-    void connectToServer(void);
-    void postToServer(String serverPath, String postBody); // serverPath format = /directories
-    String getFromServer(String serverPath);
-
-private:
-    void createPostData(void);
+    myServer* server;    //server Info
+    myTag* tag;       //current tag Info
 };
