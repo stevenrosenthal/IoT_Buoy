@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <stdlib.h>
 #include "Buoy_Support/Buoy_WiFi.h"
 #include "BLEDevice.h"
 
@@ -14,10 +15,10 @@ static BLEUUID characteristic_UUID("beb5483e-36e1-4688-b7f5-ea07361b26a8");
 static boolean doConnect = false;
 static boolean connected = false;
 static boolean doScan = false;
-uint8_t myIndex = 0;
-int32_t myData[100];
 static BLERemoteCharacteristic* pRemoteCharacteristic;
 static BLEAdvertisedDevice* myDevice;
+
+std::string myDataString;
 
 class MyClientCallback : public BLEClientCallbacks {
   void onConnect(BLEClient* pclient) {
@@ -117,15 +118,6 @@ void setup() {
   pBLEScan->start(5, false);
 
   buoy.server->connect();
-  //make up some fake tag data
-  buoy.tag->tagData.id = 37;
-  //buoy.tag->tagData.lat = 99.123;
-  //buoy.tag->tagData.lng = 100.432;
-  buoy.tag->tagData.pressure = 10232.23;
-  buoy.tag->tagData.temperature = 25.43;
-  buoy.tag->tagData.x = 4;
-  buoy.tag->tagData.y = 5;
-  buoy.tag->tagData.z = 6;
 }
 
 void loop() {
@@ -139,12 +131,32 @@ void loop() {
     doConnect = false;
   }
 if (connected) {
+  /* FIXME: parse out string so that it can be put into the buoy structure to be sent */
      if(pRemoteCharacteristic->canRead()) {
-       myData[myIndex] = (int32_t)(pRemoteCharacteristic->readUInt32());
-       myIndex++;
-       if(myIndex==100){
-          myIndex = 0;  
-       }
+       myDataString = (pRemoteCharacteristic->readValue());
+      /* Converting the string to a char array for parsing */
+       char c[myDataString.size() + 1];
+       strcpy(c, myDataString.c_str());
+      /* Parsing the char array */
+       char *token = strtok(c, " ");
+       int i = 0; 
+       char *temp[] = {};
+        while (token != NULL) 
+        { 
+            printf("%s\n", token);
+            temp[i] = token;
+            token = strtok(NULL, " "); 
+        } 
+        i = 0; // Reseting index of parsing data
+        /* Setting the data equal to its converted value */
+        buoy.tag->tagData.pressure = atof(temp[0]); // Other method?
+        buoy.tag->tagData.temperature = atof(temp[1]);
+        buoy.tag->tagData.lat = atof(temp[2]); // actually altitude
+        buoy.tag->tagData.x = atof(temp[3]);
+        buoy.tag->tagData.y = atof(temp[4]);
+        buoy.tag->tagData.z = atof(temp[5]);
+
+
     }
   }else if(doScan){
     BLEDevice::getScan()->start(0);
