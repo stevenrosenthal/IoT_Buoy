@@ -19,7 +19,7 @@ typedef struct tagData{
 class myTag{
     public:
         myTag();
-        myTag(BLEUUID serviceID, BLEUUID characteristic_UUID);
+        myTag(String serviceID, String characteristic_UUID);
         BLEUUID serviceUUID;
         BLEUUID characteristic_UUID;
 

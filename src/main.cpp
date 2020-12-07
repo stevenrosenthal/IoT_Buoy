@@ -3,10 +3,7 @@
 #include "Buoy_Support/Buoy.h"
 
 myServer server("uhouse","","3000","10.35.32.1");
-
-static BLEUUID serviceUUID("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
-static BLEUUID characteristic_UUID("beb5483e-36e1-4688-b7f5-ea07361b26a8");
-myTag tag(serviceUUID,characteristic_UUID);
+myTag tag("4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
 
 myBuoy buoy(&server,&tag);
 

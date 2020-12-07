@@ -4,12 +4,12 @@ static BLEUUID _serviceUUID;
 static BLEUUID _characteristic_UUID;
 
 myTag::myTag(){}
-myTag::myTag(BLEUUID serviceID, BLEUUID characteristic_UUID){
-  this->serviceUUID = serviceID;
-  this->characteristic_UUID = characteristic_UUID;
+myTag::myTag(String serviceID, String characteristic_UUID){
+    BLEUUID s(serviceID.c_str());
+    BLEUUID c(characteristic_UUID.c_str());
 
-  _serviceUUID = serviceID;
-  _characteristic_UUID = characteristic_UUID;
+    this->serviceUUID  = s;
+    this->characteristic_UUID = c;
 
   this->isConnected = false;
   tagData = {0};                //initializes tagData packet to zero
@@ -130,6 +130,9 @@ String myTag::makeDataPacket(void){
   return msgBuffer;
 }
 void myTag::connect(int tagID){
+    _serviceUUID = serviceUUID;
+    _characteristic_UUID = characteristic_UUID;
+    
   // BLE Setup code
   Serial.begin(115200);
   Serial.println("Starting Arduino BLE Client application...");
@@ -143,7 +146,7 @@ void myTag::connect(int tagID){
 
     if (doConnect == true) {
         if (connectToServer()) {
-        Serial.println("We are now connected to the BLE Server.");
+            Serial.println("We are now connected to the BLE Server.");
         }
         else {
             Serial.println("We have failed to connect to the server; there is nothin more we will do.");
