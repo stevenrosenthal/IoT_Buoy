@@ -4,7 +4,9 @@ static BLEUUID _serviceUUID;
 static BLEUUID _characteristic_UUID;
 
 myTag::myTag(){}
-myTag::myTag(String serviceID, String characteristic_UUID){
+myTag::myTag(String tagName, int tagID, String serviceID, String characteristic_UUID){
+    this->tagName  = tagName;
+    this->tagID = tagID;
     BLEUUID s(serviceID.c_str());
     BLEUUID c(characteristic_UUID.c_str());
 
@@ -115,41 +117,42 @@ doScan = true;
 
 String myTag::makeDataPacket(void){
   char buffer[200];
-  sprintf(buffer,"{\"tag_id\": %f, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"location\": [%f, %f]}",
-          tagData.id,
+  sprintf(buffer,"{\"tag_name\": %s, \"tag_id\": %d, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"altitude\": %f}",
+          tagName.c_str(),
+          tagID,
           tagData.x,
           tagData.y,
           tagData.z,
           tagData.temperature,
           tagData.pressure,
-          tagData.lng,
-          tagData.lat
+          tagData.alt
         );
   tagData = {0};            //resets tagData packet
   String msgBuffer(buffer);
   return msgBuffer;
 }
-void myTag::connect(int tagID){
+void myTag::connect(){
     _serviceUUID = serviceUUID;
     _characteristic_UUID = characteristic_UUID;
     
   // BLE Setup code
   Serial.begin(115200);
-  Serial.println("Starting Arduino BLE Client application...");
   BLEDevice::init("");
-  BLEScan* pBLEScan = BLEDevice::getScan();
-  pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
-  pBLEScan->setInterval(1349);
-  pBLEScan->setWindow(449);
-  pBLEScan->setActiveScan(true);
-  pBLEScan->start(5, false);
+    BLEScan* pBLEScan = BLEDevice::getScan();
+    pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
+    pBLEScan->setInterval(1349);
+    pBLEScan->setWindow(449);
+    pBLEScan->setActiveScan(true);
+    pBLEScan->start(5, false);
 
-    if (doConnect == true) {
+    if(doConnect == true) {
         if (connectToServer()) {
-            Serial.println("We are now connected to the BLE Server.");
+            Serial.print("Connected to tag ");
+            Serial.print(tagID);
         }
         else {
-            Serial.println("We have failed to connect to the server; there is nothin more we will do.");
+            Serial.println("Tag was not found... Reattempting...");
+            delay(1000);
         }
         doConnect = false;
     }
@@ -167,17 +170,17 @@ void myTag::get(){
         char *token = strtok(c, " ");
         int i = 0; 
         char *temp[6] = {};
-            while (token != NULL) 
-            { 
-                printf("%s\n", token);
-                temp[i++] = token;
-                token = strtok(NULL, " ");
-            }
+            // while (token != NULL) 
+            // { 
+            //     printf("%s\n", token);
+            //     temp[i++] = token;
+            //     token = strtok(NULL, " ");
+            // }
             i = 0; // Reseting index of parsing data
             /* Setting the data equal to its converted value */
             tagData.pressure = atof(temp[0]); // Other method?
             tagData.temperature = atof(temp[1]);
-            tagData.lat = atof(temp[2]); // actually altitude
+            tagData.alt = atof(temp[2]); // actually altitude
             tagData.x = atof(temp[3]);
             tagData.y = atof(temp[4]);
             tagData.z = atof(temp[5]);
@@ -187,4 +190,4 @@ void myTag::get(){
         BLEDevice::getScan()->start(0);
     }
 }
-
+void myTag::post(){};

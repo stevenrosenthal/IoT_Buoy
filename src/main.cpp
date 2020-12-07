@@ -3,12 +3,12 @@
 #include "Buoy_Support/Buoy.h"
 
 myServer server("uhouse","","3000","10.35.32.1");
-myTag tag("4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
+myTag tag("testTag", 37,"4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
 
 myBuoy buoy(&server,&tag);
 
 void setup() {
-  buoy.tag->connect(37);
+  buoy.tag->connect();
   buoy.server->connect();
 }
 

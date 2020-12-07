@@ -6,20 +6,20 @@
 
 //Tag data packaging
 typedef struct tagData{
-  float id;
   float x;
   float y;
   float z;
   float temperature;
   float pressure;
-  float lat;
-  float lng;
+  float alt;
 } tagData_t;
 //Tag Class: To get info from (BLE)
 class myTag{
     public:
         myTag();
-        myTag(String serviceID, String characteristic_UUID);
+        myTag(String tagName, int tagID, String serviceID, String characteristic_UUID);
+        String tagName;
+        int tagID;
         BLEUUID serviceUUID;
         BLEUUID characteristic_UUID;
 
@@ -27,7 +27,7 @@ class myTag{
         bool isConnected;
 
         String makeDataPacket(void);
-        void connect(int tagID);
+        void connect();
         void get();
         void post();
 };
