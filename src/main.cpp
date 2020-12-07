@@ -4,7 +4,7 @@
 #include "BLEDevice.h"
 
 // WIFI
-myServer server("NerdsWhoAlsoHaveFun","skatergators","3000","192.168.1.64");
+myServer server("uhouse","","3000","10.35.32.1");
 myTag tag("123","123");
 myBuoy buoy(&server,&tag);
 

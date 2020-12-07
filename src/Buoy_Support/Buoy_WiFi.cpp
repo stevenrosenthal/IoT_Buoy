@@ -2,12 +2,13 @@
 
 //CONSTRCUTORS
 
-//BLE (BAKER BLOKC)
+//BLE (BAKER BLOCK)
 myTag::myTag(){}
 myTag::myTag(String serviceID, String characteristic_UUID){
   this->serviceID = serviceID;
   this->characteristic_UUID = characteristic_UUID;
   this->isConnected = false;
+  tagData = {0};                //initializes tagData packet to zero
 }
 
 
@@ -38,7 +39,7 @@ myBuoy::myBuoy(myServer* server, myTag* tag){
 //Tag (BAKER BLOCK )
 String myTag::makeDataPacket(void){
   char buffer[200];
-  sprintf(buffer,"{\"tag_id\": %d, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"location\": [%f, %f]}",
+  sprintf(buffer,"{\"tag_id\": %f, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"location\": [%f, %f]}",
           tagData.id,
           tagData.x,
           tagData.y,
@@ -48,6 +49,7 @@ String myTag::makeDataPacket(void){
           tagData.lng,
           tagData.lat
         );
+  tagData = {0};            //resets tagData packet
   String msgBuffer(buffer);
   return msgBuffer;
 }

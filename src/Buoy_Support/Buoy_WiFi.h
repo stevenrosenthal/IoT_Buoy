@@ -10,14 +10,14 @@
 
 //Tag data packaging
 typedef struct tagData{
-  int16_t id;
+  float id;
   float x;
   float y;
   float z;
   float temperature;
   float pressure;
-  double lat;
-  double lng;
+  float lat;
+  float lng;
 } tagData_t;
 //Tag Class: To get info from (BLE)
 class myTag{
