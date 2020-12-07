@@ -140,7 +140,7 @@ if (connected) {
       /* Parsing the char array */
        char *token = strtok(c, " ");
        int i = 0; 
-       char *temp[] = {};
+       char *temp[150] = {};
         while (token != NULL) 
         { 
             printf("%s\n", token);
