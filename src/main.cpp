@@ -4,7 +4,7 @@
 #include "BLEDevice.h"
 
 // WIFI
-myServer server("BetterNEB","mattsmullet","3000","192.168.1.136");
+myServer server("NerdsWhoAlsoHaveFun","skatergators","3000","192.168.1.64");
 myTag tag("123","123");
 myBuoy buoy(&server,&tag);
 
@@ -80,6 +80,7 @@ bool connectToServer() {
       pRemoteCharacteristic->registerForNotify(notifyCallback);
 
     connected = true;
+    return true;
 }
 
 /**
@@ -131,7 +132,6 @@ void loop() {
     doConnect = false;
   }
 if (connected) {
-  /* FIXME: parse out string so that it can be put into the buoy structure to be sent */
      if(pRemoteCharacteristic->canRead()) {
        myDataString = (pRemoteCharacteristic->readValue());
       /* Converting the string to a char array for parsing */
@@ -140,13 +140,13 @@ if (connected) {
       /* Parsing the char array */
        char *token = strtok(c, " ");
        int i = 0; 
-       char *temp[150] = {};
+       char *temp[6] = {};
         while (token != NULL) 
         { 
             printf("%s\n", token);
-            temp[i] = token;
-            token = strtok(NULL, " "); 
-        } 
+            temp[i++] = token;
+            token = strtok(NULL, " ");
+        }
         i = 0; // Reseting index of parsing data
         /* Setting the data equal to its converted value */
         buoy.tag->tagData.pressure = atof(temp[0]); // Other method?
