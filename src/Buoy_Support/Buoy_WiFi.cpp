@@ -1,18 +1,6 @@
 #include "Buoy_WiFi.h"
 
 //CONSTRCUTORS
-
-//BLE (BAKER BLOCK)
-myTag::myTag(){}
-myTag::myTag(String serviceID, String characteristic_UUID){
-  this->serviceID = serviceID;
-  this->characteristic_UUID = characteristic_UUID;
-  this->isConnected = false;
-  tagData = {0};                //initializes tagData packet to zero
-}
-
-
-//WiFi
 myServer::myServer(){}
 myServer::myServer(String ssid, String password, String serverPort, String serverIP){
     this->ssid = ssid;
@@ -22,52 +10,10 @@ myServer::myServer(String ssid, String password, String serverPort, String serve
     this->isConnected = false;
 }
 
-//Buoy
-myBuoy::myBuoy(myServer* server, myTag* tag){
-  //Server
-    this->server = server;
-  
-  //Tag
-    this->tag = tag;
-}
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //FUNCTIONS
-
-//Tag (BAKER BLOCK )
-String myTag::makeDataPacket(void){
-  char buffer[200];
-  sprintf(buffer,"{\"tag_id\": %f, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"location\": [%f, %f]}",
-          tagData.id,
-          tagData.x,
-          tagData.y,
-          tagData.z,
-          tagData.temperature,
-          tagData.pressure,
-          tagData.lng,
-          tagData.lat
-        );
-  tagData = {0};            //resets tagData packet
-  String msgBuffer(buffer);
-  return msgBuffer;
-}
-void myTag::connect(int tagID){
-  /*POPULATE ME*/
-}
-void myTag::disconnect(int tagID){
-/*POPULATE ME*/
-}
-void myTag::get(){
-/*POPULATE ME*/
-}
-void myTag::post(){
-/*POPULATE ME*/
-}
-
-
-//Server
 void myServer::connect(void){
     //Turn on serial monitor
   Serial.begin(115200);
