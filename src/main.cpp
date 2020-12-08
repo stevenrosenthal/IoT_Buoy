@@ -2,20 +2,33 @@
 #include <stdlib.h>
 #include "Buoy_Support/Buoy.h"
 
-myServer server("uhouse","","3000","10.35.32.1");
-myTag tag("testTag", 37,"4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
+myServer server("BetterNEB","mattsmullet","3000","104.62.174.178");
+myTag tag(37,"4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
 
-myBuoy buoy(&server,&tag);
+myBuoy buoy(37,&server,&tag);
 
 void setup() {
-  buoy.tag->connect();
+  //buoy.tag->connect();
   buoy.server->connect();
 }
 
 void loop() {
   /* BLE Get Info */
-  buoy.tag->get();
+  //buoy.tag->get();
+  buoy.tag->tagData.x = 1;
+  buoy.tag->tagData.y = 1;
+  buoy.tag->tagData.z = 1;
+  buoy.tag->tagData.pressure = 10000;
+  buoy.tag->tagData.temperature = 27;
+  buoy.tag->tagData.alt = 1300;
+
   /* WIFI Post to Server */
-  buoy.server->post("/api/data",buoy.tag->makeDataPacket());
+  if((bool)(buoy.server->comm("/api/data",buoy.makeDataPacket())) == false){
+    Serial.println("Tag in regular mode");
+  }
+  else{
+    Serial.println("Buoy->tag LP mode");
+    sys_delay_ms(4000);
+  }
   sys_delay_ms(1000);
 }

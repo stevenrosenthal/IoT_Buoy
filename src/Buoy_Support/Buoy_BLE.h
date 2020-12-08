@@ -17,8 +17,7 @@ typedef struct tagData{
 class myTag{
     public:
         myTag();
-        myTag(String tagName, int tagID, String serviceID, String characteristic_UUID);
-        String tagName;
+        myTag(int tagID, String serviceID, String characteristic_UUID);
         int tagID;
         BLEUUID serviceUUID;
         BLEUUID characteristic_UUID;
@@ -26,7 +25,6 @@ class myTag{
         tagData_t tagData;
         bool isConnected;
 
-        String makeDataPacket(void);
         void connect();
         void get();
         void post();

@@ -85,7 +85,7 @@ void myServer::connect(void){
 
   isConnected = true;
 }
-void myServer::post(String serverPath, String postBody){
+int myServer::comm(String serverPath, String postBody){
   if(WiFi.status()== WL_CONNECTED){   //Check WiFi connection status
     HTTPClient connection;
     String serverName;
@@ -96,29 +96,32 @@ void myServer::post(String serverPath, String postBody){
       serverName = "http://" + IP + ":" + port + serverPath;
     }
 
-   Serial.println("Posting to server: " + serverName);
-   Serial.println("body: " + postBody);
+   //Serial.println("Posting to server: " + serverName);
+   //Serial.println("body: " + postBody);
    
    connection.begin(serverName);  //Specify destination for HTTP request
    connection.addHeader("Content-Type", "application/json");
 
    int httpResponseCode = connection.POST(postBody);   //Send the actual POST request
   
+  String response;
    if(httpResponseCode>0){
-    String response = connection.getString();                      //Get the response to the request
+    response = connection.getString();                      //Get the response to the request
   
-    Serial.println(httpResponseCode);   //Print return code
-    Serial.println(response);           //Print request answer
+    //Serial.println(httpResponseCode);   //Print return code
+    //Serial.println(response);           //Print request answer
    }
    else{
-    Serial.print("Error on sending POST: ");
-    Serial.println(connection.errorToString(httpResponseCode).c_str());
+    //Serial.print("Error on sending POST: ");
+    //Serial.println(connection.errorToString(httpResponseCode).c_str());
    }
-  
+
    connection.end();  //Free resources
+    return response.equals("{\"success\":true,\"msg\":\"LP\"}");
   }
   else{
     Serial.println("Could not post... WiFi disconnected");   
   }
+  return -1;
 }
 

@@ -22,6 +22,5 @@ class myServer{
 
         //WIFI
         void connect(void);
-        void post(String serverPath, String postBody); // serverPath format = /directories
-        String get(String serverPath);
+        int comm(String serverPath, String postBody); // serverPath format = /directories
 };

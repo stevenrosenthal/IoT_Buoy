@@ -4,8 +4,7 @@ static BLEUUID _serviceUUID;
 static BLEUUID _characteristic_UUID;
 
 myTag::myTag(){}
-myTag::myTag(String tagName, int tagID, String serviceID, String characteristic_UUID){
-    this->tagName  = tagName;
+myTag::myTag(int tagID, String serviceID, String characteristic_UUID){
     this->tagID = tagID;
     BLEUUID s(serviceID.c_str());
     BLEUUID c(characteristic_UUID.c_str());
@@ -115,22 +114,6 @@ doScan = true;
 /*#endregion*/
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-String myTag::makeDataPacket(void){
-  char buffer[200];
-  sprintf(buffer,"{\"tag_name\": %s, \"tag_id\": %d, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"altitude\": %f}",
-          tagName.c_str(),
-          tagID,
-          tagData.x,
-          tagData.y,
-          tagData.z,
-          tagData.temperature,
-          tagData.pressure,
-          tagData.alt
-        );
-  tagData = {0};            //resets tagData packet
-  String msgBuffer(buffer);
-  return msgBuffer;
-}
 void myTag::connect(){
     _serviceUUID = serviceUUID;
     _characteristic_UUID = characteristic_UUID;
@@ -170,12 +153,12 @@ void myTag::get(){
         char *token = strtok(c, " ");
         int i = 0; 
         char *temp[6] = {};
-            // while (token != NULL) 
-            // { 
-            //     printf("%s\n", token);
-            //     temp[i++] = token;
-            //     token = strtok(NULL, " ");
-            // }
+            while (token != NULL) 
+            { 
+                printf("%s\n", token);
+                temp[i++] = token;
+                token = strtok(NULL, " ");
+            }
             i = 0; // Reseting index of parsing data
             /* Setting the data equal to its converted value */
             tagData.pressure = atof(temp[0]); // Other method?
