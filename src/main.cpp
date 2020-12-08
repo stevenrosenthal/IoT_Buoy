@@ -12,13 +12,18 @@ myBuoy buoy(&server,&tag);
 static BLEUUID serviceUUID("4fafc201-1fb5-459e-8fcc-c5c9c331914b");
 static BLEUUID characteristic_UUID("beb5483e-36e1-4688-b7f5-ea07361b26a8");
 
+// UUID of the "Power Down" Service on the Tag
+//BLEUUID SHUTDOWN_SERVICE_UUID("39533dce-4e87-4fa9-a338-f4316436dd19");
+//BLEUUID SHUTDOWN_CHARACTERISTIC_UUID("eb439398-88f1-4d1d-b107-19a4dc6c53ce");
+
 static boolean doConnect = false;
 static boolean connected = false;
 static boolean doScan = false;
 static BLERemoteCharacteristic* pRemoteCharacteristic;
+//static BLERemoteCharacteristic* shutdownRemoteCharacteristic; // new one
 static BLEAdvertisedDevice* myDevice;
 
-std::string myDataString;
+std::string myDataString; // Where our data is recieved to from the tracker
 
 class MyClientCallback : public BLEClientCallbacks {
   void onConnect(BLEClient* pclient) {
@@ -29,7 +34,7 @@ class MyClientCallback : public BLEClientCallbacks {
     Serial.println("onDisconnect");
   }
 };
-
+// do I need to notify callback for the second one?
 static void notifyCallback(
   BLERemoteCharacteristic* pBLERemoteCharacteristic,
   uint8_t* pData,
@@ -42,7 +47,7 @@ static void notifyCallback(
     Serial.print("data: ");
     Serial.println((char*)pData);
 }
-
+// need to modify connect to server?
 bool connectToServer() {
     Serial.print("Forming a connection to ");
     Serial.println(myDevice->getAddress().toString().c_str()); //address of the tag is printed
@@ -132,6 +137,8 @@ void loop() {
     doConnect = false;
   }
 if (connected) {
+  
+  /* Reading and converting the data from the tracker */
      if(pRemoteCharacteristic->canRead()) {
        myDataString = (pRemoteCharacteristic->readValue());
       /* Converting the string to a char array for parsing */
@@ -155,7 +162,14 @@ if (connected) {
         buoy.tag->tagData.x = atof(temp[3]);
         buoy.tag->tagData.y = atof(temp[4]);
         buoy.tag->tagData.z = atof(temp[5]);
+        Serial.println("We made in here but skip the if");
 
+        /* Sending the command to turn off the LED */
+    if (pRemoteCharacteristic->canWrite()){
+      std::string shutdown = "true"; // FIXME: make this a global variable that is filled in from John's Server
+      pRemoteCharacteristic->writeValue(shutdown);
+      Serial.println("sent the request to turn off");
+  }
 
     }
   }else if(doScan){
