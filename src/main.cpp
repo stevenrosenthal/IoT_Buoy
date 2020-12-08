@@ -15,13 +15,14 @@ void setup() {
 void loop() {
   /* BLE Get Info */
   buoy.tag->get();
+  /*
   buoy.tag->tagData.x = 1;
   buoy.tag->tagData.y = 1;
   buoy.tag->tagData.z = 1;
   buoy.tag->tagData.pressure = 10000;
   buoy.tag->tagData.temperature = 27;
   buoy.tag->tagData.alt = 1300;
-
+*/
   /* WIFI Post to Server */
   if((bool)(buoy.server->comm("/api/data",buoy.makeDataPacket())) == false){
     Serial.println("Tag in regular mode");
