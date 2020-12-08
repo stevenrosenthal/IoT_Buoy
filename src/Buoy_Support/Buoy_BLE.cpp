@@ -72,8 +72,9 @@ return false;
 }
 Serial.println(" - Found our service");
 
-
+Serial.println(_characteristic_UUID.toString().c_str());
 pRemoteCharacteristic = pRemoteService->getCharacteristic(_characteristic_UUID);
+Serial.println(" exception not at line 76");
 if (pRemoteCharacteristic == nullptr) {
 Serial.print("Failed to find our characteristic UUID 0: ");
 Serial.println(_characteristic_UUID.toString().c_str());
@@ -173,4 +174,6 @@ void myTag::get(){
         BLEDevice::getScan()->start(0);
     }
 }
-void myTag::post(){};
+void myTag::post(std::string x){
+    pRemoteCharacteristic->writeValue(x);
+};
