@@ -14,7 +14,7 @@ public:
 
   String makeDataPacket(void){
   char buffer[200];
-  sprintf(buffer,"{\"buoy_id\": %d, \"tag_id\": %d, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"altitude\": %f}",
+  sprintf(buffer,"{\"buoy_id\": %d, \"tag_id\": %d, \"accel\": [%f,%f,%f], \"temperature\": %f, \"pressure\": %f, \"altitude\": %f, \"rssi\": %d}",
           buoyID,
           tag->tagID,
           tag->tagData.x,
@@ -22,7 +22,8 @@ public:
           tag->tagData.z,
           tag->tagData.temperature,
           tag->tagData.pressure,
-          tag->tagData.alt
+          tag->tagData.alt,
+          tag->buoyRSSI
         );
   tag->tagData = {0};            //resets tagData packet
   String msgBuffer(buffer);

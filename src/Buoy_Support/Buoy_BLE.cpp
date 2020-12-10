@@ -23,6 +23,7 @@ static boolean connected = false;
 static boolean doScan = false;
 static BLERemoteCharacteristic* pRemoteCharacteristic;
 static BLEAdvertisedDevice* myDevice;
+std::string globalTagName = ""; // Name of the tag to connect to
 
 std::string myDataString;
 
@@ -49,11 +50,12 @@ Serial.print("data: ");
 Serial.println((char*)pData);
 }
 
-bool connectToServer() {
+bool myTag::connectToServer() {
 Serial.print("Forming a connection to ");
 Serial.println(myDevice->getAddress().toString().c_str()); //address of the tag is printed
 
 BLEClient*  pClient  = BLEDevice::createClient();
+my_pClient = pClient;
 Serial.println(" - Created client");
 
 pClient->setClientCallbacks(new MyClientCallback());
@@ -99,29 +101,37 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
  */
 void onResult(BLEAdvertisedDevice advertisedDevice) {
 Serial.print("BLE Advertised Device found: ");
-Serial.println(advertisedDevice.toString().c_str());
+std::string devString = advertisedDevice.toString();
+Serial.println(devString.c_str());
+int start = devString.find(" ") + 1;
+int end = devString.find(",");
+int nameLength = end - start;
+
+std::string devName = devString.substr(start,nameLength);
 
 // We have found a device, let us now see if it contains the service we are looking for.
 if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(_serviceUUID)) {
-
-BLEDevice::getScan()->stop();
-myDevice = new BLEAdvertisedDevice(advertisedDevice);
-doConnect = true;
-doScan = true;
-
+    if(devName.compare(globalTagName) == 0){    //if the deviceName found and globalTagName we are looking are equal
+        BLEDevice::getScan()->stop();
+        myDevice = new BLEAdvertisedDevice(advertisedDevice);
+        doConnect = true;
+        doScan = true;
+    }
 } // Found our server
 } // onResult
 }; // MyAdvertisedDeviceCallbacks
 /*#endregion*/
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void myTag::connect(){
+
+void myTag::connect(std::string tagName){
+    globalTagName = tagName;
     _serviceUUID = serviceUUID;
     _characteristic_UUID = characteristic_UUID;
     
   // BLE Setup code
   Serial.begin(115200);
-  BLEDevice::init("");
+    BLEDevice::init("");
     BLEScan* pBLEScan = BLEDevice::getScan();
     pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
     pBLEScan->setInterval(1349);
@@ -145,6 +155,7 @@ void myTag::connect(){
 void myTag::get(){
     if (connected) {
         isConnected = true;
+        buoyRSSI = my_pClient->getRssi();
         if(pRemoteCharacteristic->canRead()) {
         myDataString = (pRemoteCharacteristic->readValue());
         /* Converting the string to a char array for parsing */
@@ -168,6 +179,7 @@ void myTag::get(){
             tagData.x = atof(temp[3]);
             tagData.y = atof(temp[4]);
             tagData.z = atof(temp[5]);
+            Serial.println(buoyRSSI); // DELETE ME
         }
         }else if(doScan){
         isConnected = false;
