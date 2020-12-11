@@ -9,7 +9,7 @@ int it = 0;
 myTag tag0(37,"tag0","4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
 myTag tag1(1, "tag1","4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
 myTag* tags[2] = {&tag0, &tag1};
-myServer server("10.35.32.95","","3000","192.168.1.64");
+myServer server("uhouse","","3000","10.35.32.95");
 myBuoy buoy(37,&server,tags[it]);
 
 ///////////////////////////////////////////////////////////////////////////////
