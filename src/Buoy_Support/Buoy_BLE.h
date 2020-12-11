@@ -22,18 +22,17 @@ class myTag{
         std::string tagName;
         BLEUUID serviceUUID;
         BLEUUID characteristic_UUID;
-    
 
         tagData_t tagData;
         int buoyRSSI;
         bool isConnected;
 
+        static void setup();
         void connect(std::string tagName);
         void get();
         void post(std::string x);
     private:
       bool connectToServer();
-      BLEClient* my_pClient; 
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////

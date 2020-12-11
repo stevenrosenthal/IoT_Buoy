@@ -4,7 +4,7 @@
 
 #define NUM_TAGS 2
 
-int it = 0;
+int it = 1;
 
 myTag tag0(37,"tag0","4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
 myTag tag1(1, "tag1","4fafc201-1fb5-459e-8fcc-c5c9c331914b","beb5483e-36e1-4688-b7f5-ea07361b26a8");
@@ -17,6 +17,7 @@ myBuoy buoy(37,&server,tags[it]);
 void setup() {
   Serial.begin(115200);
   delay(100);
+  myTag::setup();
   buoy.server->connect();
 }
 
@@ -32,12 +33,12 @@ void loop() {
   if((bool)(buoy.server->comm("/api/data",buoy.makeDataPacket())) == false)
   {
     shutdown = "false";
-    Serial.println("False");
+    Serial.println("Tag Low Power:: False");
   }
   else
   {
     shutdown = "true";
-    Serial.println("True");
+    Serial.println("Tag Low Power: True");
   }
   
   buoy.tag->post(shutdown);
