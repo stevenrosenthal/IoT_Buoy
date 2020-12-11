@@ -17,8 +17,9 @@ typedef struct tagData{
 class myTag{
     public:
         myTag();
-        myTag(int tagID, String serviceID, String characteristic_UUID);
+        myTag(int tagID, std::string tagName, String serviceID, String characteristic_UUID);
         int tagID;
+        std::string tagName;
         BLEUUID serviceUUID;
         BLEUUID characteristic_UUID;
     

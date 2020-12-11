@@ -4,8 +4,9 @@ static BLEUUID _serviceUUID;
 static BLEUUID _characteristic_UUID;
 
 myTag::myTag(){}
-myTag::myTag(int tagID, String serviceID, String characteristic_UUID){
+myTag::myTag(int tagID, std::string tagName, String serviceID, String characteristic_UUID){
     this->tagID = tagID;
+    this->tagName = tagName;
     BLEUUID s(serviceID.c_str());
     BLEUUID c(characteristic_UUID.c_str());
 
@@ -100,9 +101,9 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
  * Called for each advertising BLE server.
  */
 void onResult(BLEAdvertisedDevice advertisedDevice) {
-Serial.print("BLE Advertised Device found: ");
+//Serial.print("BLE Advertised Device found: ");
 std::string devString = advertisedDevice.toString();
-Serial.println(devString.c_str());
+//Serial.println(devString.c_str());
 int start = devString.find(" ") + 1;
 int end = devString.find(",");
 int nameLength = end - start;
@@ -130,7 +131,6 @@ void myTag::connect(std::string tagName){
     _characteristic_UUID = characteristic_UUID;
     
   // BLE Setup code
-  Serial.begin(115200);
     BLEDevice::init("");
     BLEScan* pBLEScan = BLEDevice::getScan();
     pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
@@ -167,6 +167,7 @@ void myTag::get(){
         char *temp[6] = {};
             while (token != NULL) 
             { 
+                Serial.println("YO YO"); // DELETE ME
                 printf("%s\n", token);
                 temp[i++] = token;
                 token = strtok(NULL, " ");
@@ -179,13 +180,16 @@ void myTag::get(){
             tagData.x = atof(temp[3]);
             tagData.y = atof(temp[4]);
             tagData.z = atof(temp[5]);
-            Serial.println(buoyRSSI); // DELETE ME
+            //my_pClient->disconnect();
         }
-        }else if(doScan){
-        isConnected = false;
-        BLEDevice::getScan()->start(0);
-    }
+
+        }
+        else if(doScan){
+            isConnected = false;
+            BLEDevice::getScan()->start(0);
+        }
 }
 void myTag::post(std::string x){
     pRemoteCharacteristic->writeValue(x);
+    my_pClient->disconnect();
 };

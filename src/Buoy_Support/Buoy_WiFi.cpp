@@ -15,8 +15,6 @@ myServer::myServer(String ssid, String password, String serverPort, String serve
 
 //FUNCTIONS
 void myServer::connect(void){
-    //Turn on serial monitor
-  Serial.begin(115200);
   delay(100);
 
   //Header
