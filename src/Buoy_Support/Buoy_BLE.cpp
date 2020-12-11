@@ -30,67 +30,69 @@ std::string myDataString;
 
 class MyClientCallback : public BLEClientCallbacks {
 void onConnect(BLEClient* pclient) {
+    Serial.println("Connected");
 }
 
 void onDisconnect(BLEClient* pclient) {
-connected = false;
-Serial.println("onDisconnect");
+    connected = false;
+    Serial.println("Disconnected");
 }
 };
 
-static void notifyCallback(
-BLERemoteCharacteristic* pBLERemoteCharacteristic,
-uint8_t* pData,
-size_t length,
-bool isNotify) {
-Serial.print("Notify callback for characteristic ");
-Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
-Serial.print(" of data length ");
-Serial.println(length);
-Serial.print("data: ");
-Serial.println((char*)pData);
+static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic,
+                            uint8_t* pData,
+                            size_t length,
+                            bool isNotify)
+{
+    Serial.print("Notify callback for characteristic ");
+    Serial.print(pBLERemoteCharacteristic->getUUID().toString().c_str());
+    Serial.print(" of data length ");
+    Serial.println(length);
+    Serial.print("data: ");
+    Serial.println((char*)pData);
 }
 
-bool myTag::connectToServer() {
-Serial.print("Forming a connection to ");
-Serial.println(myDevice->getAddress().toString().c_str()); //address of the tag is printed
+bool myTag::connectToServer()
+{
+    Serial.print("Forming a connection to ");
+    Serial.println(myDevice->getAddress().toString().c_str()); //address of the tag is printed
 
-BLEClient*  pClient  = BLEDevice::createClient();
-my_pClient = pClient;
-Serial.println(" - Created client");
+    BLEClient*  pClient  = BLEDevice::createClient();
+    my_pClient = pClient;
+    Serial.println(" - Created client");
 
-pClient->setClientCallbacks(new MyClientCallback());
+    pClient->setClientCallbacks(new MyClientCallback());
 
-// Connect to the remove BLE Server/Tag.
-pClient->connect(myDevice);  // if you pass BLEAdvertisedDevice instead of address, it will be recognized type of peer device address (public or private)
-Serial.println(" - Connected to server");
+    // Connect to the remove BLE Server/Tag.
+    pClient->connect(myDevice);  // if you pass BLEAdvertisedDevice instead of address, it will be recognized type of peer device address (public or private)
+    Serial.println(" - Connected to server");
 
-// Obtain a reference to the service we are after in the remote BLE server.
-BLERemoteService* pRemoteService = pClient->getService(_serviceUUID);
-if (pRemoteService == nullptr) {
-Serial.print("Failed to find our service UUID: ");
-Serial.println(_serviceUUID.toString().c_str());
-pClient->disconnect();
-return false;
-}
-Serial.println(" - Found our service");
+    // Obtain a reference to the service we are after in the remote BLE server.
+    BLERemoteService* pRemoteService = pClient->getService(_serviceUUID);
+    if (pRemoteService == nullptr) {
+        Serial.print("Failed to find our service UUID: ");
+        Serial.println(_serviceUUID.toString().c_str());
+        pClient->disconnect();
+        return false;
+    }
+    Serial.println(" - Found our service");
 
-Serial.println(_characteristic_UUID.toString().c_str());
-pRemoteCharacteristic = pRemoteService->getCharacteristic(_characteristic_UUID);
-Serial.println(" exception not at line 76");
-if (pRemoteCharacteristic == nullptr) {
-Serial.print("Failed to find our characteristic UUID 0: ");
-Serial.println(_characteristic_UUID.toString().c_str());
-pClient->disconnect();
-return false;
-}
-Serial.println(" - Found our characteristic");
+    Serial.println(_characteristic_UUID.toString().c_str());
+    pRemoteCharacteristic = pRemoteService->getCharacteristic(_characteristic_UUID);
+    Serial.println(" exception not at line 76");
+    if (pRemoteCharacteristic == nullptr) {
+        Serial.print("Failed to find our characteristic UUID 0: ");
+        Serial.println(_characteristic_UUID.toString().c_str());
+        pClient->disconnect();
+        return false;
+    }
+    Serial.println(" - Found our characteristic");
 
-if(pRemoteCharacteristic->canNotify())
-pRemoteCharacteristic->registerForNotify(notifyCallback);
+    if(pRemoteCharacteristic->canNotify())
+        pRemoteCharacteristic->registerForNotify(notifyCallback);
 
-connected = true;
-return true;
+    connected = true;
+    return true;
 }
 
 /*
@@ -100,25 +102,28 @@ class MyAdvertisedDeviceCallbacks: public BLEAdvertisedDeviceCallbacks {
 /**
  * Called for each advertising BLE server.
  */
-void onResult(BLEAdvertisedDevice advertisedDevice) {
-//Serial.print("BLE Advertised Device found: ");
-std::string devString = advertisedDevice.toString();
-//Serial.println(devString.c_str());
-int start = devString.find(" ") + 1;
-int end = devString.find(",");
-int nameLength = end - start;
+void onResult(BLEAdvertisedDevice advertisedDevice)
+{
+    //Serial.print("BLE Advertised Device found: ");
+    std::string devString = advertisedDevice.toString();
+    //Serial.println(devString.c_str());
+    int start = devString.find(" ") + 1;
+    int end = devString.find(",");
+    int nameLength = end - start;
 
-std::string devName = devString.substr(start,nameLength);
+    std::string devName = devString.substr(start,nameLength);
 
-// We have found a device, let us now see if it contains the service we are looking for.
-if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(_serviceUUID)) {
-    if(devName.compare(globalTagName) == 0){    //if the deviceName found and globalTagName we are looking are equal
-        BLEDevice::getScan()->stop();
-        myDevice = new BLEAdvertisedDevice(advertisedDevice);
-        doConnect = true;
-        doScan = true;
-    }
-} // Found our server
+    // We have found a device, let us now see if it contains the service we are looking for.
+    if (advertisedDevice.haveServiceUUID() && advertisedDevice.isAdvertisingService(_serviceUUID))
+    {
+        if(devName.compare(globalTagName) == 0)
+        {    //if the deviceName found and globalTagName we are looking are equal
+            BLEDevice::getScan()->stop();
+            myDevice = new BLEAdvertisedDevice(advertisedDevice);
+            doConnect = true;
+            doScan = true;
+        }
+    } // Found our server
 } // onResult
 }; // MyAdvertisedDeviceCallbacks
 /*#endregion*/
@@ -138,11 +143,11 @@ void myTag::connect(std::string tagName){
     pBLEScan->setWindow(449);
     pBLEScan->setActiveScan(true);
     pBLEScan->start(5, false);
-
+    delay(2000);
     if(doConnect == true) {
         if (connectToServer()) {
             Serial.print("Connected to tag ");
-            Serial.print(tagID);
+            Serial.println(tagID);
         }
         else {
             Serial.println("Tag was not found... Reattempting...");
@@ -166,8 +171,7 @@ void myTag::get(){
         int i = 0; 
         char *temp[6] = {};
             while (token != NULL) 
-            { 
-                Serial.println("YO YO"); // DELETE ME
+            {
                 printf("%s\n", token);
                 temp[i++] = token;
                 token = strtok(NULL, " ");
@@ -192,4 +196,5 @@ void myTag::get(){
 void myTag::post(std::string x){
     pRemoteCharacteristic->writeValue(x);
     my_pClient->disconnect();
-};
+    connected = false;
+}
