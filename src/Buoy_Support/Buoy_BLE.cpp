@@ -29,14 +29,14 @@ std::string globalTagName = ""; // Name of the tag to connect to
 std::string myDataString;
 
 class MyClientCallback : public BLEClientCallbacks {
-void onConnect(BLEClient* pclient) {
-    Serial.println("Connected");
-}
+    void onConnect(BLEClient* pclient) {
+        Serial.println("Connected");
+    }
 
-void onDisconnect(BLEClient* pclient) {
-    connected = false;
-    Serial.println("Disconnected");
-}
+    void onDisconnect(BLEClient* pclient) {
+        connected = false;
+        Serial.println("Disconnected");
+    }
 };
 
 static void notifyCallback(BLERemoteCharacteristic* pBLERemoteCharacteristic,
@@ -144,6 +144,7 @@ void myTag::connect(std::string tagName){
     pBLEScan->setActiveScan(true);
     pBLEScan->start(5, false);
     delay(2000);
+    Serial.println("HERE");
     if(doConnect == true) {
         if (connectToServer()) {
             Serial.print("Connected to tag ");
@@ -155,21 +156,23 @@ void myTag::connect(std::string tagName){
         }
         doConnect = false;
     }
+    Serial.println("UHOH");
     isConnected = true;
 }
 void myTag::get(){
     if (connected) {
         isConnected = true;
         buoyRSSI = my_pClient->getRssi();
-        if(pRemoteCharacteristic->canRead()) {
-        myDataString = (pRemoteCharacteristic->readValue());
-        /* Converting the string to a char array for parsing */
-        char c[myDataString.size() + 1];
-        strcpy(c, myDataString.c_str());
-        /* Parsing the char array */
-        char *token = strtok(c, " ");
-        int i = 0; 
-        char *temp[6] = {};
+        if(pRemoteCharacteristic->canRead())
+        {
+            myDataString = (pRemoteCharacteristic->readValue());
+            /* Converting the string to a char array for parsing */
+            char c[myDataString.size() + 1];
+            strcpy(c, myDataString.c_str());
+            /* Parsing the char array */
+            char *token = strtok(c, " ");
+            int i = 0; 
+            char *temp[6] = {};
             while (token != NULL) 
             {
                 printf("%s\n", token);
@@ -184,17 +187,18 @@ void myTag::get(){
             tagData.x = atof(temp[3]);
             tagData.y = atof(temp[4]);
             tagData.z = atof(temp[5]);
-            //my_pClient->disconnect();
         }
-
-        }
-        else if(doScan){
-            isConnected = false;
-            BLEDevice::getScan()->start(0);
-        }
+    }
+    else if(doScan){
+        isConnected = false;
+        Serial.println("Trying?");
+        BLEDevice::getScan()->start(0);
+        Serial.println("Done Trying...");
+    }
 }
 void myTag::post(std::string x){
     pRemoteCharacteristic->writeValue(x);
     my_pClient->disconnect();
     connected = false;
+    pRemoteCharacteristic = nullptr;
 }
